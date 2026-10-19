@@ -428,12 +428,17 @@ Reply-To:            ${email.trim()}
   }
 });
 
-// Start Express server
-app.listen(PORT, () => {
-  console.log(`=======================================================`);
-  console.log(`A.R. Agro Spices Backend Server running on port ${PORT}`);
-  console.log(`RFQ Recipient Target: ${RECIPIENT_EMAIL}`);
-  const hasSmtp = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
-  console.log(`SMTP Configured: ${hasSmtp ? 'YES (' + process.env.SMTP_HOST + ')' : 'NO - Awaiting credentials in .env'}`);
-  console.log(`=======================================================`);
-});
+// Start Express server if running directly (local development)
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`=======================================================`);
+    console.log(`A.R. Agro Spices Backend Server running on port ${PORT}`);
+    console.log(`RFQ Recipient Target: ${RECIPIENT_EMAIL}`);
+    const hasSmtp = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+    console.log(`SMTP Configured: ${hasSmtp ? 'YES (' + process.env.SMTP_HOST + ')' : 'NO - Awaiting credentials in .env'}`);
+    console.log(`=======================================================`);
+  });
+}
+
+export default app;
+
