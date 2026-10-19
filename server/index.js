@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Load environment variables from .env file in root directory
+// Load environment variables from .env file in root directory for local dev
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -13,23 +13,51 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Hardcoded default recipient for export inquiries (security: never client-controlled)
-const RECIPIENT_EMAIL = process.env.RECIPIENT_EMAIL || 'export@aragrospices.com';
+// Configurable destination mailbox for export inquiries
+export const getRecipientEmail = () => (process.env.RECIPIENT_EMAIL || 'export@aragrospices.com').trim();
 
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
 /**
- * Helper to build the Nodemailer transporter using environment variables.
- * Returns null if essential SMTP settings are missing.
+ * Parses and returns SMTP configuration from environment variables.
+ * Defaults to secure Hostinger SMTP settings on port 465.
  */
-function createTransporter() {
-  const host = process.env.SMTP_HOST;
-  const port = parseInt(process.env.SMTP_PORT || '587', 10);
-  const secure = process.env.SMTP_SECURE === 'true' || port === 465;
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+export function getSmtpConfig() {
+  const host = (process.env.SMTP_HOST || 'smtp.hostinger.com').trim();
+  const port = parseInt(process.env.SMTP_PORT || '465', 10);
+  const secure = process.env.SMTP_SECURE !== undefined
+    ? process.env.SMTP_SECURE === 'true'
+    : port === 465;
+  const user = (process.env.SMTP_USER || '').trim();
+  const pass = process.env.SMTP_PASS || '';
+
+  return { host, port, secure, user, pass };
+}
+
+/**
+ * Builds the authorized RFC 5322 From header.
+ * Hostinger requires the sender email to match the authenticated mailbox (SMTP_USER).
+ */
+export function getAuthorizedFromAddress(smtpUser) {
+  const rawFrom = (process.env.SMTP_FROM || '').trim().replace(/^["']|["']$/g, '');
+  if (rawFrom) {
+    const match = rawFrom.match(/^(.*?)\s*<([^>]+)>$/);
+    if (match) {
+      const displayName = match[1].replace(/["']/g, '').trim() || 'A.R. Agro Spices Sales';
+      return `"${displayName}" <${smtpUser}>`;
+    }
+  }
+  return `"A.R. Agro Spices Sales" <${smtpUser}>`;
+}
+
+/**
+ * Helper to build the Nodemailer transporter using environment variables.
+ * Enforces strict TLS certificate verification and safe socket timeouts for serverless execution.
+ */
+export function createTransporter() {
+  const { host, port, secure, user, pass } = getSmtpConfig();
 
   if (!host || !user || !pass) {
     return null;
@@ -44,23 +72,46 @@ function createTransporter() {
       pass,
     },
     tls: {
-      // Do not fail on invalid certs if self-hosted or cPanel
-      rejectUnauthorized: process.env.SMTP_REJECT_UNAUTHORIZED !== 'false',
+      // Enforce strict TLS certificate validation
+      rejectUnauthorized: true,
     },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   });
 }
 
 /**
- * Health check & configuration status endpoint
+ * Base API discovery route (returns JSON instead of 404 Cannot GET /api)
  */
-app.get('/api/health', (req, res) => {
-  const isConfigured = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+app.get('/api', (req, res) => {
   res.json({
     status: 'online',
-    recipientEmail: RECIPIENT_EMAIL,
+    service: 'A.R. Agro Spices API Gateway',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: 'GET /api/health',
+      sendInquiry: 'POST /api/send-inquiry',
+    },
+  });
+});
+
+/**
+ * Health check & configuration status endpoint (safe: no passwords exposed)
+ */
+app.get('/api/health', (req, res) => {
+  const { host, port, secure, user, pass } = getSmtpConfig();
+  const isConfigured = Boolean(host && user && pass);
+
+  res.json({
+    status: 'online',
+    recipientEmail: getRecipientEmail(),
     smtpConfigured: isConfigured,
-    smtpHost: process.env.SMTP_HOST || 'not configured',
-    port: PORT,
+    smtpHost: host,
+    smtpPort: port,
+    smtpSecure: secure,
+    smtpSenderUser: user ? `${user.slice(0, 3)}***@${user.split('@')[1] || ''}` : 'not set',
+    tlsValidation: 'enforced (rejectUnauthorized: true)',
   });
 });
 
@@ -69,6 +120,9 @@ app.get('/api/health', (req, res) => {
  * POST /api/send-inquiry
  */
 app.post('/api/send-inquiry', async (req, res) => {
+  const reqId = `rfq_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+  const recipientEmail = getRecipientEmail();
+
   try {
     const {
       fullName,
@@ -85,9 +139,9 @@ app.post('/api/send-inquiry', async (req, res) => {
       packaging,
       requestSample,
       message,
-    } = req.body;
+    } = req.body || {};
 
-    // 1. Backend Validation of all required fields
+    // 1. Strict validation of required quotation fields
     const missingFields = [];
     if (!fullName || !fullName.trim()) missingFields.push('Full Name');
     if (!companyName || !companyName.trim()) missingFields.push('Company Name');
@@ -95,13 +149,14 @@ app.post('/api/send-inquiry', async (req, res) => {
     if (!phone || !phone.trim()) missingFields.push('Phone / WhatsApp Number');
     if (!country || !country.trim()) missingFields.push('Country of Import');
     if (!selectedProduct || !selectedProduct.trim()) missingFields.push('Specific Product');
-    if (!quantity || !String(quantity).trim()) missingFields.push('Required Quantity');
+    if (quantity === undefined || quantity === null || !String(quantity).trim()) missingFields.push('Required Quantity');
 
     if (missingFields.length > 0) {
       return res.status(400).json({
         success: false,
         code: 'VALIDATION_FAILED',
         message: `Missing required field(s): ${missingFields.join(', ')}`,
+        reqId,
       });
     }
 
@@ -112,28 +167,33 @@ app.post('/api/send-inquiry', async (req, res) => {
         success: false,
         code: 'INVALID_EMAIL',
         message: 'Please provide a valid business email address.',
+        reqId,
       });
     }
 
-    // 2. Check SMTP Configuration
+    // 2. Validate SMTP Configuration
+    const { user: smtpUser } = getSmtpConfig();
     const transporter = createTransporter();
-    if (!transporter) {
+    if (!transporter || !smtpUser) {
+      console.error(`[RFQ_CONFIG_MISSING] reqId=${reqId} SMTP credentials not found in environment.`);
       return res.status(503).json({
         success: false,
         code: 'SMTP_NOT_CONFIGURED',
-        message:
-          'Backend email service is not yet configured. Please configure SMTP_HOST, SMTP_PORT, SMTP_USER, and SMTP_PASS in the .env file.',
-        recipient: RECIPIENT_EMAIL,
+        message: 'Backend email gateway is not configured. Please ensure SMTP environment variables are set in Vercel.',
+        reqId,
       });
     }
 
-    // 3. Format Subject exactly as required:
-    // "New Export Quotation Request – [Company Name] – [Product Name]"
+    // 3. Format Subject line
     const cleanCompany = companyName.trim();
     const cleanProduct = selectedProduct.trim();
     const subject = `New Export Quotation Request – ${cleanCompany} – ${cleanProduct}`;
 
-    // 4. Construct Clean Plain-Text Version
+    // Clean customer details for headers (prevent header injection)
+    const cleanBuyerName = fullName.trim().replace(/[\r\n]/g, '');
+    const cleanBuyerEmail = email.trim().replace(/[\r\n]/g, '');
+
+    // 4. Construct Plain-Text Version
     const plainText = `
 ============================================================
 NEW EXPORT QUOTATION REQUEST (RFQ) - A.R. AGRO SPICES
@@ -143,9 +203,9 @@ A prospective international buyer has submitted a quotation inquiry via the webs
 
 1. BUYER & CORPORATE INFORMATION
 ------------------------------------------------------------
-Full Name:           ${fullName.trim()}
-Company Name:        ${companyName.trim()}
-Business Email:      ${email.trim()}
+Full Name:           ${cleanBuyerName}
+Company Name:        ${cleanCompany}
+Business Email:      ${cleanBuyerEmail}
 Phone / WhatsApp:    ${phone.trim()}
 Country of Import:   ${country.trim()}
 Destination Port:    ${destinationPort?.trim() || 'Not specified (FOB Mundra requested)'}
@@ -165,8 +225,9 @@ ${message?.trim() || 'None provided'}
 
 ------------------------------------------------------------
 Submitted At:        ${new Date().toUTCString()}
-Recipient Mailbox:   ${RECIPIENT_EMAIL}
-Reply-To:            ${email.trim()}
+Tracking ID:         ${reqId}
+Recipient Mailbox:   ${recipientEmail}
+Reply-To:            ${cleanBuyerEmail}
 ============================================================
 `.trim();
 
@@ -218,54 +279,52 @@ Reply-To:            ${email.trim()}
       font-size: 22px;
       font-weight: 800;
       line-height: 1.3;
-      color: #ffffff;
     }
     .header p {
       margin: 6px 0 0;
       font-size: 13px;
-      color: #d1fae5;
+      opacity: 0.85;
     }
-    .body {
+    .content {
       padding: 28px 32px;
     }
     .section-title {
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 700;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #1b3826;
-      border-bottom: 2px solid #e2ece0;
-      padding-bottom: 6px;
+      color: #55755e;
       margin-top: 24px;
       margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #eef3ed;
     }
-    .section-title:first-child {
+    .section-title:first-of-type {
       margin-top: 0;
     }
-    table.data-table {
+    .data-table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
     }
-    table.data-table td {
-      padding: 10px 12px;
-      font-size: 13px;
+    .data-table td {
+      padding: 8px 0;
       vertical-align: top;
-      border-bottom: 1px solid #f1f5f0;
+      font-size: 14px;
     }
-    table.data-table td.label {
-      width: 36%;
-      font-weight: 600;
+    .data-table td.label {
+      width: 38%;
       color: #64748b;
+      font-weight: 500;
     }
-    table.data-table td.val {
-      width: 64%;
-      font-weight: 600;
+    .data-table td.val {
+      width: 62%;
       color: #0f172a;
+      font-weight: 600;
     }
     .highlight-val {
-      color: #1b3826;
-      font-weight: 700;
+      color: #1b3826 !important;
+      font-weight: 700 !important;
     }
     .notes-box {
       background: #f8faf7;
@@ -298,9 +357,10 @@ Reply-To:            ${email.trim()}
     .footer {
       background: #f1f5f0;
       padding: 20px 32px;
-      font-size: 11px;
+      font-size: 12px;
       color: #64748b;
       text-align: center;
+      line-height: 1.6;
       border-top: 1px solid #e2ece0;
     }
   </style>
@@ -308,17 +368,17 @@ Reply-To:            ${email.trim()}
 <body>
   <div class="wrapper">
     <div class="header">
-      <div class="badge">Official Website RFQ</div>
-      <h1>${cleanProduct}</h1>
-      <p>Inquiry received from <strong>${cleanCompany}</strong> (${country.trim()})</p>
+      <div class="badge">Export Trade Inquiry</div>
+      <h1>New Export Quotation Request</h1>
+      <p>Received via A.R. Agro Spices Official Export Portal &bull; Ref: ${reqId}</p>
     </div>
 
-    <div class="body">
-      <div class="section-title">1. Buyer & Corporate Information</div>
+    <div class="content">
+      <div class="section-title">1. Buyer & Corporate Profile</div>
       <table class="data-table">
         <tr>
           <td class="label">Full Name:</td>
-          <td class="val highlight-val">${fullName.trim()}</td>
+          <td class="val highlight-val">${cleanBuyerName}</td>
         </tr>
         <tr>
           <td class="label">Company Name:</td>
@@ -326,7 +386,7 @@ Reply-To:            ${email.trim()}
         </tr>
         <tr>
           <td class="label">Business Email:</td>
-          <td class="val"><a href="mailto:${email.trim()}" style="color: #1b3826; text-decoration: underline;">${email.trim()}</a></td>
+          <td class="val"><a href="mailto:${cleanBuyerEmail}" style="color: #1b3826; text-decoration: underline;">${cleanBuyerEmail}</a></td>
         </tr>
         <tr>
           <td class="label">Phone / WhatsApp:</td>
@@ -358,28 +418,28 @@ Reply-To:            ${email.trim()}
         </tr>
         <tr>
           <td class="label">Required Quantity:</td>
-          <td class="val highlight-val">${quantity} ${unit || 'Metric Tonnes (MT)'}</td>
+          <td class="val highlight-val" style="color: #1b3826;">${quantity} ${unit || 'Metric Tonnes (MT)'}</td>
         </tr>
         <tr>
-          <td class="label">Packaging Requirements:</td>
+          <td class="label">Packaging Choice:</td>
           <td class="val">${packaging || 'Standard Export PP Bags'}</td>
         </tr>
         <tr>
-          <td class="label">Physical Sample Request:</td>
-          <td class="val" style="color: ${requestSample ? '#1b3826' : '#64748b'}; font-weight: ${requestSample ? '700' : '500'};">
-            ${requestSample ? '✅ YES - 500g Pre-shipment Sample Requested' : 'No sample requested'}
-          </td>
+          <td class="label">500g Quality Sample:</td>
+          <td class="val">${requestSample ? '✅ Sample Requested for Lab Evaluation' : '❌ Sample Not Required'}</td>
         </tr>
       </table>
 
-      <div class="section-title">3. Additional Specifications & Quality Requirements</div>
-      <div class="notes-box">${message?.trim() || 'No additional specifications specified by buyer.'}</div>
+      <div class="section-title">3. Buyer Notes & Special Requirements</div>
+      <div class="notes-box">
+${message?.trim() || 'No additional specifications mentioned.'}
+      </div>
 
       <div class="action-row">
-        <a href="mailto:${email.trim()}?subject=RE: Export Quotation - ${encodeURIComponent(cleanProduct)} - A.R. Agro Spices" class="btn">
+        <a href="mailto:${cleanBuyerEmail}?subject=${encodeURIComponent(`Re: Quotation for ${cleanProduct} - A.R. Agro Spices`)}" class="btn">
           ✉️ Reply to Buyer via Email
         </a>
-        <a href="https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${fullName.trim()}, thank you for your inquiry for ${cleanProduct} with A.R. Agro Spices.`)}" class="btn btn-secondary">
+        <a href="https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hello ${cleanBuyerName}, thank you for your inquiry for ${cleanProduct} with A.R. Agro Spices.`)}" class="btn btn-secondary">
           💬 Chat on WhatsApp
         </a>
       </div>
@@ -387,43 +447,71 @@ Reply-To:            ${email.trim()}
 
     <div class="footer">
       This inquiry was submitted from the A.R. Agro Spices website RFQ portal.<br>
-      Delivered directly to: <strong>${RECIPIENT_EMAIL}</strong> &bull; Unjha, Gujarat, India.<br>
-      Submission Timestamp: ${new Date().toISOString()}
+      Delivered directly to: <strong>${recipientEmail}</strong> &bull; Unjha, Gujarat, India.<br>
+      Submission Timestamp: ${new Date().toISOString()} &bull; ID: ${reqId}
     </div>
   </div>
 </body>
 </html>
 `.trim();
 
-    // 6. Send Email via Nodemailer
-    const senderFrom = process.env.SMTP_FROM || `"A.R. Agro Spices RFQ" <${process.env.SMTP_USER}>`;
+    // 6. Build and dispatch mail with verified From address
+    const fromAddress = getAuthorizedFromAddress(smtpUser);
 
     const mailOptions = {
-      from: senderFrom,
-      to: RECIPIENT_EMAIL, // FIXED to export@aragrospices.com on backend
-      replyTo: `${fullName.trim()} <${email.trim()}>`, // Replying goes straight to buyer
+      from: fromAddress,
+      to: recipientEmail,
+      replyTo: `"${cleanBuyerName}" <${cleanBuyerEmail}>`,
       subject,
       text: plainText,
       html: htmlContent,
+      headers: {
+        'X-Entity-Ref-ID': reqId,
+        'X-Originating-IP': req.ip || '',
+      },
     };
 
+    // Await delivery to SMTP server
     const info = await transporter.sendMail(mailOptions);
 
-    console.log(`[RFQ SENT] Subject: "${subject}" to ${RECIPIENT_EMAIL} (messageId: ${info.messageId})`);
+    // 7. Verify SMTP acceptance status
+    const acceptedList = Array.isArray(info.accepted) ? info.accepted : [];
+    const rejectedList = Array.isArray(info.rejected) ? info.rejected : [];
+
+    const isAccepted = acceptedList.some(
+      (addr) => String(addr).toLowerCase().includes(recipientEmail.toLowerCase())
+    ) || (acceptedList.length > 0 && !rejectedList.some((addr) => String(addr).toLowerCase().includes(recipientEmail.toLowerCase())));
+
+    if (!isAccepted) {
+      console.error(`[RFQ_SMTP_REJECTED] reqId=${reqId} recipient=${recipientEmail} rejected=${rejectedList.join(',')} accepted=${acceptedList.join(',')}`);
+      return res.status(502).json({
+        success: false,
+        code: 'SMTP_RECIPIENT_REJECTED',
+        message: 'The mail server did not accept the recipient address for delivery.',
+        reqId,
+        recipient: recipientEmail,
+      });
+    }
+
+    // Safe diagnostic log ONLY after verified SMTP acceptance
+    console.log(`[RFQ_SMTP_ACCEPTED] reqId=${reqId} messageId=${info.messageId} recipient=${recipientEmail} response="${info.response || ''}"`);
 
     return res.status(200).json({
       success: true,
-      message: `Your export quotation request has been successfully dispatched to our export desk (${RECIPIENT_EMAIL}). Our international trade team will contact you within 6 business hours.`,
+      message: `Your export quotation request has been accepted by the mail gateway for delivery to ${recipientEmail}.`,
+      reqId,
       messageId: info.messageId,
-      accepted: info.accepted,
-      recipient: RECIPIENT_EMAIL,
+      accepted: acceptedList,
+      recipient: recipientEmail,
     });
   } catch (error) {
-    console.error('[RFQ ERROR] Failed to send email:', error);
-    return res.status(500).json({
+    console.error(`[RFQ_SMTP_FAILED] reqId=${reqId} recipient=${recipientEmail} code=${error.code || 'UNKNOWN'} command=${error.command || 'NONE'} responseCode=${error.responseCode || 'NONE'} message="${error.message || 'Error sending email'}"`);
+
+    return res.status(502).json({
       success: false,
-      code: 'SEND_MAIL_FAILED',
-      message: error.message || 'An error occurred while sending the quotation email. Please try again or reach out on WhatsApp.',
+      code: error.code || 'SMTP_DELIVERY_FAILED',
+      message: 'Unable to deliver quotation email via mail server. Please try again or reach out on WhatsApp.',
+      reqId,
     });
   }
 });
@@ -433,12 +521,12 @@ if (!process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`=======================================================`);
     console.log(`A.R. Agro Spices Backend Server running on port ${PORT}`);
-    console.log(`RFQ Recipient Target: ${RECIPIENT_EMAIL}`);
-    const hasSmtp = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
-    console.log(`SMTP Configured: ${hasSmtp ? 'YES (' + process.env.SMTP_HOST + ')' : 'NO - Awaiting credentials in .env'}`);
+    console.log(`RFQ Recipient Target: ${getRecipientEmail()}`);
+    const { host, user, pass } = getSmtpConfig();
+    const hasSmtp = Boolean(host && user && pass);
+    console.log(`SMTP Configured: ${hasSmtp ? 'YES (' + host + ')' : 'NO - Awaiting credentials in .env'}`);
     console.log(`=======================================================`);
   });
 }
 
 export default app;
-

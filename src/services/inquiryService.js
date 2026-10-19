@@ -112,7 +112,7 @@ export async function submitInquiry(inquiryPayload) {
 
     const result = await response.json().catch(() => ({}));
 
-    if (!response.ok) {
+    if (!response.ok || !result.success) {
       return {
         success: false,
         code: result.code || `HTTP_${response.status}`,
