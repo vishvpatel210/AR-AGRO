@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <g transform="translate(60,60)">
+    <!-- outer ring -->
+    <circle r="56" fill="none" stroke="#2a7a3b" stroke-width="2.5"/>
+    <circle r="51" fill="none" stroke="#2a7a3b" stroke-width="0.8" stroke-dasharray="3 2"/>
+    <circle r="44" fill="none" stroke="#2a7a3b" stroke-width="1.5"/>
+
+    <!-- top arc label -->
+    <path id="haccpTop" d="M -38,0 A 38,38 0 0,1 38,0" fill="none"/>
+    <text font-family="Inter,Arial,sans-serif" font-size="7.5" font-weight="800" fill="#2a7a3b" letter-spacing="2">
+      <textPath href="#haccpTop" startOffset="50%" text-anchor="middle">FOOD SAFETY</textPath>
+    </text>
+
+    <!-- center text -->
+    <text y="-5" font-family="Inter,Arial Black,sans-serif" font-size="16" font-weight="900" fill="#2a7a3b" text-anchor="middle">HACCP</text>
+    <text y="8" font-family="Inter,Arial,sans-serif" font-size="6" fill="#2a7a3b" text-anchor="middle">CERTIFIED</text>
+
+    <!-- bottom arc label -->
+    <path id="haccpBot" d="M -38,0 A 38,38 0 0,0 38,0" fill="none"/>
+    <text font-family="Inter,Arial,sans-serif" font-size="7" font-weight="700" fill="#2a7a3b" letter-spacing="1.5">
+      <textPath href="#haccpBot" startOffset="50%" text-anchor="middle">HACCP SYSTEM</textPath>
+    </text>
+  </g>
+</svg>

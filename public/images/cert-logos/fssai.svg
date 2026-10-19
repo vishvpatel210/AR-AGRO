@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 70" width="200" height="70">
+  <!-- fssai leaf-style wordmark inspired logo -->
+  <!-- Leaf / checkmark accent -->
+  <path d="M 16 35 Q 22 18 38 20 Q 28 34 16 35Z" fill="#f7941d" opacity="0.85"/>
+  <path d="M 16 35 Q 20 48 36 46 Q 26 36 16 35Z" fill="#2a7a3b" opacity="0.85"/>
+
+  <!-- fssai text in stylized font -->
+  <text x="50" y="45" font-family="Georgia,Times New Roman,serif" font-size="32" font-weight="700" fill="#2a7a3b" letter-spacing="-1">
+    fssa<tspan fill="#f7941d">i</tspan>
+  </text>
+  <!-- Tagline -->
+  <text x="50" y="60" font-family="Inter,Arial,sans-serif" font-size="7" fill="#666" letter-spacing="0.5">
+    Food Safety &amp; Standards Authority of India
+  </text>
+</svg>

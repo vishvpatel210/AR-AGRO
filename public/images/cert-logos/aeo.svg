@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="200" height="80">
+  <!-- Globe icon -->
+  <g transform="translate(30,40)">
+    <circle r="22" fill="none" stroke="#1565c0" stroke-width="2"/>
+    <ellipse cx="0" cy="0" rx="11" ry="22" fill="none" stroke="#1565c0" stroke-width="1.2"/>
+    <line x1="-22" y1="0" x2="22" y2="0" stroke="#1565c0" stroke-width="1"/>
+    <line x1="-21" y1="-8" x2="21" y2="-8" stroke="#1565c0" stroke-width="1"/>
+    <line x1="-21" y1="8" x2="21" y2="8" stroke="#1565c0" stroke-width="1"/>
+  </g>
+  <!-- AEO text -->
+  <g transform="translate(62,40)">
+    <text y="-8" font-family="Inter,Arial Black,sans-serif" font-size="22" font-weight="900" fill="#1565c0" dominant-baseline="middle">AEO</text>
+    <text y="12" font-family="Inter,Arial,sans-serif" font-size="7" fill="#666" dominant-baseline="middle">AUTHORIZED ECONOMIC</text>
+    <text y="22" font-family="Inter,Arial,sans-serif" font-size="7" fill="#666" dominant-baseline="middle">OPERATOR · INDIAN CUSTOMS</text>
+  </g>
+</svg>

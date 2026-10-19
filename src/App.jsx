@@ -16,6 +16,7 @@ import ProductsPage from './pages/ProductsPage';
 import CertificatesPage from './pages/CertificatesPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
+import ArrowCursor from './components/ArrowCursor';
 
 export default function App() {
   const [inquiryModalOpen, setInquiryModalOpen] = useState(false);
@@ -33,6 +34,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-warm-white text-ink-dark flex flex-col font-sans selection:bg-lime/30 selection:text-forest-dark">
+      {/* Interactive Arrow Cursor Effect */}
+      <ArrowCursor />
+
       {/* Navigation Header */}
       <Header onOpenInquiry={() => handleOpenInquiry()} />
 

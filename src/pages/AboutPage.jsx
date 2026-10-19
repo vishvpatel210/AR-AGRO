@@ -1,9 +1,10 @@
-﻿import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft, MapPin, Globe, ShieldCheck, Award, Factory,
-  Package, TrendingUp, Users, ArrowRight, CheckCircle2, Star
+  Package, TrendingUp, Users, ArrowRight, CheckCircle2, Star,
+  Container, Maximize2, X, Ship
 } from "lucide-react";
 
 const fadeUp = (delay = 0) => ({
@@ -54,6 +55,79 @@ const FACILITY_PHOTOS = [
   },
 ];
 
+const STUFFING_PHOTOS = [
+  {
+    src: "/images/stuffing/stuffing-1.jpg",
+    alt: "Food-Grade Kraft Paper Container Lining — A.R. Agro Spices Unjha",
+    caption: "Food-Grade Kraft Paper Lining",
+    desc: "Full interior container wall and floor lining with multi-ply food-grade kraft paper for contamination-free transit.",
+    tag: "Container Preparation"
+  },
+  {
+    src: "/images/stuffing/stuffing-2.jpg",
+    alt: "Export Bags Stacking & Loadability — A.R. Agro Spices",
+    caption: "Export Bags Stacking & Loadability",
+    desc: "Precision manual and hydraulic stacking of export bags to maximize container payload capacity and weight balance.",
+    tag: "FCL Stuffing"
+  },
+  {
+    src: "/images/stuffing/stuffing-3.jpg",
+    alt: "Kraft Lining with Moisture Absorbing Desiccants — A.R. Agro Spices",
+    caption: "Kraft Lining & Desiccant Bags",
+    desc: "High-absorption calcium chloride desiccant bags installed to prevent container condensation during sea voyage.",
+    tag: "Moisture Protection"
+  },
+  {
+    src: "/images/stuffing/stuffing-4.jpg",
+    alt: "Heavy-Duty Blue Polyethylene Moisture Barrier Liner — A.R. Agro Spices",
+    caption: "Blue Polyethylene Liner",
+    desc: "Full-container blue polyethylene liner providing 100% airtight humidity and vapor barrier protection.",
+    tag: "Climate Barrier"
+  },
+  {
+    src: "/images/stuffing/stuffing-5.jpg",
+    alt: "Aarika Cumin Seeds 25kg Export Bags Loaded — A.R. Agro Spices",
+    caption: "Aarika Cumin Seeds Export Batch",
+    desc: "Branded Aarika Cumin Seeds (Jeera) 25kg export bags stacked neatly and secured for global delivery.",
+    tag: "Cumin Export"
+  },
+  {
+    src: "/images/stuffing/stuffing-6.jpg",
+    alt: "Full Container Load (FCL) Stuffed on Trailer — A.R. Agro Spices",
+    caption: "Full Container Load (FCL) Stuffed",
+    desc: "Completed container stuffing inspected, secured, and ready for container door closing and custom sealing.",
+    tag: "Port Dispatch"
+  },
+  {
+    src: "/images/stuffing/stuffing-7.jpg",
+    alt: "MSC High-Cube Export Container Sealed for Port Transit",
+    caption: "MSC Container Sealed for Transit",
+    desc: "High-cube MSC ocean shipping container sealed with tamper-evident customs bolt seal, loaded on trailer.",
+    tag: "Customs Sealed"
+  },
+  {
+    src: "/images/stuffing/stuffing-8.jpg",
+    alt: "Uniform Stacking in 20ft/40ft Ocean Container — A.R. Agro Spices",
+    caption: "Uniform Container Stacking",
+    desc: "Consistent 25kg / 50kg bag interlocking layout ensuring cargo stability and zero in-transit shifting.",
+    tag: "Cargo Security"
+  },
+  {
+    src: "/images/stuffing/stuffing-9.jpg",
+    alt: "High-Tensile Green Export Sacks Loaded — A.R. Agro Spices",
+    caption: "Heavy-Duty Export Sacks Stuffed",
+    desc: "High-tensile export packaging stacked uniformly in moisture-protected container environment.",
+    tag: "Bulk Packaging"
+  },
+  {
+    src: "/images/stuffing/stuffing-10.jpg",
+    alt: "Sealed Ocean Container Ready for Mundra Port — A.R. Agro Spices",
+    caption: "Ocean Container Ready for Mundra Port",
+    desc: "Sealed heavy-duty export container trailer ready for direct transit from Unjha to Mundra Port container terminal.",
+    tag: "Port Gate-In"
+  },
+];
+
 const MILESTONES = [
   { year: "2000", title: "Founded in Unjha", desc: "Established with a vision to deliver premium Indian spices to domestic and international markets." },
   { year: "2005", title: "First International Export", desc: "Expanded into global markets, delivering cumin, fennel, and coriander seeds to overseas buyers." },
@@ -64,6 +138,7 @@ const MILESTONES = [
 
 export default function AboutPage({ onOpenInquiry }) {
   const shouldReduceMotion = useReducedMotion();
+  const [selectedStuffing, setSelectedStuffing] = useState(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -290,6 +365,67 @@ export default function AboutPage({ onOpenInquiry }) {
         </div>
       </section>
 
+      {/* ── STUFFING PICTURES SECTION ────────────────── */}
+      <section id="stuffing-pictures" className="py-14 sm:py-20 bg-warm-white border-t border-forest/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <motion.div variants={fadeUp()} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}
+            className="text-center max-w-3xl mx-auto mb-12">
+            <span className="inline-flex items-center gap-1.5 text-forest text-xs font-bold uppercase tracking-widest mb-3">
+              <Container className="w-3.5 h-3.5 text-lime" />
+              <span>Container Stuffing & Ocean Freight</span>
+              <Container className="w-3.5 h-3.5 text-lime" />
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-forest-dark font-heading tracking-tight mb-4">
+              Stuffing Pictures
+            </h2>
+            <p className="text-ink-muted text-base sm:text-lg leading-relaxed">
+              Real photographic documentation of our container stuffing operations at Unjha, Gujarat — featuring food-grade kraft paper lining, moisture barrier protection, desiccant placement, uniform FCL stacking, and custom-sealed container dispatch to Mundra and Kandla ports.
+            </p>
+          </motion.div>
+
+          {/* Grid of 10 Stuffing Photos */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-5">
+            {STUFFING_PHOTOS.map((photo, i) => (
+              <motion.div
+                key={photo.src}
+                variants={fadeUp(i * 0.04)}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.1 }}
+                onClick={() => setSelectedStuffing(photo)}
+                className="group relative rounded-2xl overflow-hidden border border-forest/15 shadow-sm hover:shadow-xl transition-all duration-300 bg-white cursor-pointer flex flex-col justify-between"
+              >
+                <div className="relative aspect-[3/4] overflow-hidden bg-slate-900">
+                  <img
+                    src={photo.src}
+                    alt={photo.alt}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/85 via-forest-dark/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+                    <span className="text-[11px] font-semibold text-lime flex items-center gap-1">
+                      <Maximize2 className="w-3.5 h-3.5" />
+                      <span>Enlarge Photo</span>
+                    </span>
+                  </div>
+                  <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-forest-dark/90 backdrop-blur-xs text-[10px] font-bold text-lime uppercase tracking-wider shadow-xs">
+                    {photo.tag}
+                  </span>
+                </div>
+                <div className="p-3 bg-white border-t border-forest/10">
+                  <h4 className="text-xs font-bold text-forest-dark line-clamp-1 group-hover:text-forest transition-colors">
+                    {photo.caption}
+                  </h4>
+                  <p className="text-[11px] text-ink-muted line-clamp-2 mt-0.5 leading-snug">
+                    {photo.desc}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Why Choose Us */}
       <section className="py-14 sm:py-16 bg-white border-t border-forest/8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -339,6 +475,47 @@ export default function AboutPage({ onOpenInquiry }) {
           </div>
         </div>
       </section>
+
+      {/* Lightbox Modal for Stuffing Photos */}
+      {selectedStuffing && (
+        <div
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+          onClick={() => setSelectedStuffing(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-4xl w-full max-h-[92vh] bg-forest-dark rounded-2xl overflow-hidden border border-forest/30 shadow-2xl flex flex-col"
+          >
+            <div className="flex items-center justify-between p-4 border-b border-forest-light/20 bg-forest-dark/90">
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-lime font-bold">
+                  {selectedStuffing.tag} • Stuffing Pictures
+                </span>
+                <h3 className="text-base font-bold text-warm-white">
+                  {selectedStuffing.caption}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedStuffing(null)}
+                className="w-9 h-9 rounded-full bg-forest/80 hover:bg-forest text-warm-white flex items-center justify-center transition-colors cursor-pointer"
+                aria-label="Close photo preview"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="relative flex-1 overflow-hidden bg-black/60 flex items-center justify-center p-2 sm:p-4">
+              <img
+                src={selectedStuffing.src}
+                alt={selectedStuffing.alt}
+                className="max-h-[68vh] w-auto max-w-full object-contain rounded-lg"
+              />
+            </div>
+            <div className="p-3.5 bg-forest-dark/95 border-t border-forest-light/20 text-xs text-warm-white/80 text-center">
+              {selectedStuffing.desc}
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

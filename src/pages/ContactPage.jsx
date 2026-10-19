@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft, MapPin, Phone, Mail, MessageCircle,
-  Clock, ArrowRight, Send, CheckCircle2, Building2
+  Clock, ArrowRight, Send, CheckCircle2, Building2,
+  Facebook, Instagram, Linkedin, Share2
 } from "lucide-react";
 
 const fadeUp = (delay = 0) => ({
@@ -166,6 +167,52 @@ Sent via aragrospices.com contact form`
               </motion.div>
             ))}
           </div>
+
+          {/* Social Media Channels Row */}
+          <motion.div variants={fadeUp(0.35)} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }}
+            className="mt-6 bg-white rounded-2xl p-5 sm:p-6 border border-forest/10 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-forest/10 flex items-center justify-center shrink-0">
+                <Share2 className="w-5 h-5 text-forest" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-forest-dark">Connect on Social Media</h4>
+                <p className="text-xs text-ink-muted">Stay informed on market arrivals, spice pricing trends & crop harvest updates</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              <a
+                href="https://www.linkedin.com/company/a-r-agro-spices13/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 hover:bg-[#0A66C2] text-slate-700 hover:text-white border border-slate-200 hover:border-[#0A66C2] transition-all text-xs font-bold shadow-xs hover:shadow-sm"
+              >
+                <Linkedin className="w-4 h-4 text-[#0A66C2] group-hover:text-white" />
+                <span>LinkedIn</span>
+              </a>
+
+              <a
+                href="https://www.instagram.com/a.r.agrospices?igsh=ajg2bGwxZTAxcjU2"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 hover:bg-gradient-to-r hover:from-[#fd5949] hover:via-[#d6249f] hover:to-[#285AEB] text-slate-700 hover:text-white border border-slate-200 hover:border-transparent transition-all text-xs font-bold shadow-xs hover:shadow-sm"
+              >
+                <Instagram className="w-4 h-4 text-[#E4405F]" />
+                <span>Instagram</span>
+              </a>
+
+              <a
+                href="https://www.facebook.com/profile.php?id=61592786966701"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 hover:bg-[#1877F2] text-slate-700 hover:text-white border border-slate-200 hover:border-[#1877F2] transition-all text-xs font-bold shadow-xs hover:shadow-sm"
+              >
+                <Facebook className="w-4 h-4 text-[#1877F2]" />
+                <span>Facebook</span>
+              </a>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -318,6 +365,38 @@ Sent via aragrospices.com contact form`
                   <div>
                     <a href="mailto:info@aragrospices.com" className="block text-sm font-semibold text-forest-dark hover:text-forest transition-colors">info@aragrospices.com</a>
                     <a href="mailto:export@aragrospices.com" className="block text-sm font-semibold text-forest-dark hover:text-forest transition-colors">export@aragrospices.com</a>
+                  </div>
+                </div>
+                <div className="pt-2 border-t border-forest/10 flex items-center justify-between">
+                  <span className="text-xs font-bold text-forest-dark">Follow Us:</span>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="https://www.linkedin.com/company/a-r-agro-spices13/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="LinkedIn"
+                      className="w-8 h-8 rounded-lg bg-white border border-forest/15 hover:bg-[#0A66C2] text-[#0A66C2] hover:text-white flex items-center justify-center transition-all shadow-xs"
+                    >
+                      <Linkedin className="w-4 h-4" />
+                    </a>
+                    <a
+                      href="https://www.instagram.com/a.r.agrospices?igsh=ajg2bGwxZTAxcjU2"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Instagram"
+                      className="w-8 h-8 rounded-lg bg-white border border-forest/15 hover:bg-[#E4405F] text-[#E4405F] hover:text-white flex items-center justify-center transition-all shadow-xs"
+                    >
+                      <Instagram className="w-4 h-4" />
+                    </a>
+                    <a
+                      href="https://www.facebook.com/profile.php?id=61592786966701"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Facebook"
+                      className="w-8 h-8 rounded-lg bg-white border border-forest/15 hover:bg-[#1877F2] text-[#1877F2] hover:text-white flex items-center justify-center transition-all shadow-xs"
+                    >
+                      <Facebook className="w-4 h-4" />
+                    </a>
                   </div>
                 </div>
               </div>

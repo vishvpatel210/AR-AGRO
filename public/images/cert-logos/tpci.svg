@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="200" height="80">
+  <!-- TPCI - Trade Promotion Council of India -->
+  <!-- Globe + bar chart icon -->
+  <g transform="translate(30,40)">
+    <circle r="20" fill="none" stroke="#c0392b" stroke-width="2"/>
+    <ellipse cx="0" cy="0" rx="10" ry="20" fill="none" stroke="#c0392b" stroke-width="1.2"/>
+    <line x1="-20" y1="0" x2="20" y2="0" stroke="#c0392b" stroke-width="1"/>
+    <line x1="-19" y1="-7" x2="19" y2="-7" stroke="#c0392b" stroke-width="0.8"/>
+    <line x1="-19" y1="7" x2="19" y2="7" stroke="#c0392b" stroke-width="0.8"/>
+  </g>
+  <!-- TPC|I label -->
+  <g transform="translate(58,40)">
+    <text y="-8" font-family="Inter,Arial Black,sans-serif" font-size="22" font-weight="900" fill="#c0392b">TPC</text>
+    <text x="70" y="-8" font-family="Inter,Arial Black,sans-serif" font-size="22" font-weight="900" fill="#1d3d7f">I</text>
+    <text y="8" font-family="Inter,Arial,sans-serif" font-size="6.2" fill="#444">Trade Promotion Council</text>
+    <text y="18" font-family="Inter,Arial,sans-serif" font-size="6.2" fill="#444">of India</text>
+  </g>
+</svg>

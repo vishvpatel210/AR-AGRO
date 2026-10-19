@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="200" height="80">
+  <!-- FIEO - Federation of Indian Export Organisations -->
+  <!-- Ashoka chakra-inspired badge -->
+  <g transform="translate(30,40)">
+    <circle r="22" fill="#ff6600" opacity="0.12"/>
+    <circle r="22" fill="none" stroke="#ff6600" stroke-width="2.5"/>
+    <!-- Spokes (simplified chakra) -->
+    <line x1="0" y1="-18" x2="0" y2="18" stroke="#ff6600" stroke-width="1" opacity="0.6"/>
+    <line x1="-18" y1="0" x2="18" y2="0" stroke="#ff6600" stroke-width="1" opacity="0.6"/>
+    <line x1="-13" y1="-13" x2="13" y2="13" stroke="#ff6600" stroke-width="1" opacity="0.5"/>
+    <line x1="13" y1="-13" x2="-13" y2="13" stroke="#ff6600" stroke-width="1" opacity="0.5"/>
+    <circle r="6" fill="#ff6600" opacity="0.2"/>
+    <circle r="6" fill="none" stroke="#ff6600" stroke-width="1.5"/>
+  </g>
+  <!-- FIEO label -->
+  <g transform="translate(60,40)">
+    <text y="-8" font-family="Inter,Arial Black,sans-serif" font-size="22" font-weight="900" fill="#ff6600">FIEO</text>
+    <text y="6" font-family="Inter,Arial,sans-serif" font-size="6" fill="#555">Federation of Indian</text>
+    <text y="16" font-family="Inter,Arial,sans-serif" font-size="6" fill="#555">Export Organisations</text>
+  </g>
+</svg>

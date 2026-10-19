@@ -17,7 +17,11 @@ import {
   Copy,
   Check,
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Share2
 } from 'lucide-react';
 import { PRODUCTS, CATEGORIES } from '../data/products';
 import { getFormWhatsAppUrl, WHATSAPP_NUMBER } from '../utils/whatsapp';
@@ -749,6 +753,52 @@ SMTP_HOST=smtp.gmail.com (or your mail server)&#10;SMTP_PORT=587&#10;SMTP_USER=y
                   <p className="text-[11px] text-ink-muted">
                     export@aragrospices.com
                   </p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-sage/40 border border-forest/15 flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-forest/10 text-forest flex items-center justify-center shrink-0">
+                  <Share2 className="w-5 h-5" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-xs font-bold text-forest uppercase tracking-wider">
+                    Official Social Channels
+                  </h4>
+                  <p className="text-[11px] text-ink-muted mt-0.5 mb-2.5">
+                    Connect with us for regular crop arrival & export updates
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <a
+                      href="https://www.linkedin.com/company/a-r-agro-spices13/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="LinkedIn"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-forest/20 text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white transition-all text-xs font-semibold shadow-xs"
+                    >
+                      <Linkedin className="w-3.5 h-3.5" />
+                      <span>LinkedIn</span>
+                    </a>
+                    <a
+                      href="https://www.instagram.com/a.r.agrospices?igsh=ajg2bGwxZTAxcjU2"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Instagram"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-forest/20 text-[#E4405F] hover:bg-[#E4405F] hover:text-white transition-all text-xs font-semibold shadow-xs"
+                    >
+                      <Instagram className="w-3.5 h-3.5" />
+                      <span>Instagram</span>
+                    </a>
+                    <a
+                      href="https://www.facebook.com/profile.php?id=61592786966701"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Facebook"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-forest/20 text-[#1877F2] hover:bg-[#1877F2] hover:text-white transition-all text-xs font-semibold shadow-xs"
+                    >
+                      <Facebook className="w-3.5 h-3.5" />
+                      <span>Facebook</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>

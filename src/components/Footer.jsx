@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Mail, MapPin, Globe, ShieldCheck, ArrowUp, ExternalLink } from 'lucide-react';
+import { Phone, Mail, MapPin, Globe, ShieldCheck, ArrowUp, ExternalLink, Facebook, Instagram, Linkedin } from 'lucide-react';
 
 export default function Footer({ onOpenInquiry }) {
   const scrollToTop = () => {
@@ -42,6 +42,45 @@ export default function Footer({ onOpenInquiry }) {
             <div className="flex items-center gap-2 pt-2 text-xs font-semibold text-lime">
               <ShieldCheck className="w-4 h-4 text-lime shrink-0" />
               <span>Govt. of India Recognized One Star Export House</span>
+            </div>
+
+            {/* Social Media Links */}
+            <div className="pt-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-warm-white/60 block mb-2.5">
+                Connect With Us
+              </span>
+              <div className="flex items-center gap-2.5">
+                <a
+                  href="https://www.linkedin.com/company/a-r-agro-spices13/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="A.R. Agro Spices on LinkedIn"
+                  title="Follow on LinkedIn"
+                  className="w-9 h-9 rounded-xl bg-forest/80 hover:bg-[#0A66C2] text-warm-white flex items-center justify-center transition-all duration-200 border border-forest-light/30 hover:border-transparent hover:scale-105 shadow-sm"
+                >
+                  <Linkedin className="w-4 h-4" />
+                </a>
+                <a
+                  href="https://www.instagram.com/a.r.agrospices?igsh=ajg2bGwxZTAxcjU2"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="A.R. Agro Spices on Instagram"
+                  title="Follow on Instagram"
+                  className="w-9 h-9 rounded-xl bg-forest/80 hover:bg-gradient-to-tr hover:from-[#fd5949] hover:via-[#d6249f] hover:to-[#285AEB] text-warm-white flex items-center justify-center transition-all duration-200 border border-forest-light/30 hover:border-transparent hover:scale-105 shadow-sm"
+                >
+                  <Instagram className="w-4 h-4" />
+                </a>
+                <a
+                  href="https://www.facebook.com/profile.php?id=61592786966701"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="A.R. Agro Spices on Facebook"
+                  title="Follow on Facebook"
+                  className="w-9 h-9 rounded-xl bg-forest/80 hover:bg-[#1877F2] text-warm-white flex items-center justify-center transition-all duration-200 border border-forest-light/30 hover:border-transparent hover:scale-105 shadow-sm"
+                >
+                  <Facebook className="w-4 h-4" />
+                </a>
+              </div>
             </div>
           </div>
 
