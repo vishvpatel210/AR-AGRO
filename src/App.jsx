@@ -17,6 +17,7 @@ import CertificatesPage from './pages/CertificatesPage';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import ArrowCursor from './components/ArrowCursor';
+import { Analytics } from '@vercel/analytics/react';
 
 export default function App() {
   const [inquiryModalOpen, setInquiryModalOpen] = useState(false);
@@ -118,6 +119,9 @@ export default function App() {
           onClose={handleCloseInquiry}
         />
       )}
+
+      {/* Vercel Web Analytics */}
+      <Analytics />
     </div>
   );
 }
